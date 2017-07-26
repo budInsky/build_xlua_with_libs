@@ -13,6 +13,7 @@ namespace XLua.LuaDLL
             return luaopen_rapidjson(L);
         }
 
+
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern int luaopen_lpeg(System.IntPtr L);
 
@@ -22,6 +23,7 @@ namespace XLua.LuaDLL
             return luaopen_lpeg(L);
         }
 
+
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern int luaopen_protobuf_c(System.IntPtr L);
 
@@ -29,6 +31,15 @@ namespace XLua.LuaDLL
         public static int LoadProtobufC(System.IntPtr L)
         {
             return luaopen_protobuf_c(L);
+        }
+
+        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int luaopen_crypt(System.IntPtr L);
+
+        [MonoPInvokeCallback(typeof(LuaDLL.lua_CSFunction))]
+        public static int LoadCrypt(System.IntPtr L)
+        {
+            return luaopen_crypt(L);
         }
     }
 }

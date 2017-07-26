@@ -27,6 +27,7 @@ public class Helloworld : MonoBehaviour {
         luaenv.AddBuildin("rapidjson", XLua.LuaDLL.Lua.LoadRapidJson);
         luaenv.AddBuildin("lpeg", XLua.LuaDLL.Lua.LoadLpeg);
         luaenv.AddBuildin("protobuf.c", XLua.LuaDLL.Lua.LoadProtobufC);
+        luaenv.AddBuildin("crypt", XLua.LuaDLL.Lua.LoadCrypt);
         luaenv.DoString(@"
         ------------------------------------
         local rapidjson = require 'rapidjson' 
@@ -63,6 +64,39 @@ public class Helloworld : MonoBehaviour {
 
         assert(user.id == user_decode.id and user.info.diamond == user_decode.info.diamond)
         print('hello', user_decode.info.name)
+
+
+        local crypt = require 'crypt'
+
+       local secretA = crypt.randomkey()
+       local A = crypt.dhexchange(secretA)
+       print('A private secret = ', crypt.hexencode(secretA), 'message->B = ', crypt.hexencode(A))
+
+       local secretB = crypt.randomkey()
+       local B = crypt.dhexchange(secretB)
+       print('B private secret = ', crypt.hexencode(secretB), 'message->B = ', crypt.hexencode(B))
+
+       local s1,s2 = crypt.dhsecret(B, secretA), crypt.dhsecret(A, secretB)
+
+       assert(s1 == s2)
+       local secret = s1
+       print('A B shared secret = ', crypt.hexencode(secret))
+
+       assert(crypt.hexdecode(crypt.hexencode(secret)) == secret)
+
+
+       local deskey = crypt.hashkey 'hello world'
+       print('hashkey(hello world) = ', crypt.hexencode(deskey))
+       print(crypt.hexencode(deskey) == deskey)
+       local hmac = crypt.hmac64(deskey, secret)
+       print('hmac(hashkey, secret) = ', crypt.hexencode(hmac))
+
+
+       for i=1,30 do
+           local etext = crypt.desencode(deskey, string.sub('abcdefghijklmnopqrstuvwxyz1234567890',1,i))
+           local dtext = crypt.desdecode(deskey, etext)
+           print(crypt.hexencode(etext), '==>', dtext)
+       end
 
         ");
         luaenv.Dispose();
